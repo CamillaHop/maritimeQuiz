@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OR Exam Quiz — Maritime Routing &amp; Scheduling</title>
+  <link rel="stylesheet" href="style.css" />
+  <script>
+    (function () {
+      var saved = localStorage.getItem('theme');
+      var theme = saved || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
+</head>
+<body>
+
+  <div class="page-wrap">
+
+    <!-- ── Header ────────────────────────────────────────────────── -->
+    <header>
+      <span class="header-title">Operations Research</span>
+      <span class="header-sub">Exam prep quiz</span>
+      <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Toggle theme">Light</button>
+    </header>
+
+    <!-- ── Progress bar (always visible) ────────────────────────── -->
+    <div class="progress-wrap">
+      <div class="progress-top">
+        <span class="progress-label">Progress</span>
+        <span id="progress-text">0 / 0</span>
+      </div>
+      <div class="progress-track">
+        <div id="progress-fill"></div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <!--  START SCREEN                                              -->
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <section id="start-section">
+      <p class="start-eyebrow">NTNU — TIØ4120</p>
+      <h1 class="start-title">Maritime Routing<br>&amp; Scheduling</h1>
+      <p class="start-desc">
+        Test your knowledge of tramp and industrial ship routing, the set partitioning
+        (path flow) model, and practical extensions including ECA, speed optimisation,
+        flexible cargo sizes, and split loads.
+      </p>
+
+      <div class="stat-row">
+        <div class="stat-pill"><strong id="total-count">8</strong> questions</div>
+        <div class="stat-pill">Randomised order</div>
+        <div class="stat-pill">Instant feedback</div>
+      </div>
+
+      <button class="btn-primary" id="start-btn">Start quiz →</button>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <!--  QUIZ SCREEN                                               -->
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <section id="quiz-section" class="hidden">
+
+      <div class="q-meta">
+        <span id="q-tag">Conceptual</span>
+      </div>
+
+      <div id="q-text"></div>
+
+      <div id="options"></div>
+
+      <div id="feedback" class="feedback hidden"></div>
+
+      <button class="btn-primary hidden" id="next-btn">Next question →</button>
+
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <!--  RESULTS SCREEN                                            -->
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <section id="results-section" class="hidden">
+
+      <div class="results-header">
+        <span id="score-big">0/0</span>
+        <span id="score-pct">0%</span>
+        <p id="score-msg"></p>
+      </div>
+
+      <div class="results-actions">
+        <button class="btn-primary" id="restart-btn">Retry quiz →</button>
+      </div>
+
+      <p class="breakdown-title">Question breakdown</p>
+      <div id="breakdown-list"></div>
+
+    </section>
+
+  </div><!-- /page-wrap -->
+
+  <footer>
+    Operations Research · Maritime Routing &amp; Scheduling · NTNU
+  </footer>
+
+  <!-- questions.js must load before script.js -->
+  <script src="questions.js"></script>
+  <script src="script.js"></script>
+  <script>
+    (function () {
+      var btn = document.getElementById('theme-toggle');
+      if (!btn) return;
+      var sync = function () {
+        var t = document.documentElement.getAttribute('data-theme');
+        btn.textContent = t === 'light' ? 'Dark' : 'Light';
+      };
+      sync();
+      btn.addEventListener('click', function () {
+        var current = document.documentElement.getAttribute('data-theme');
+        var next = current === 'light' ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', next);
+        localStorage.setItem('theme', next);
+        sync();
+      });
+    })();
+  </script>
+
+</body>
+</html>
