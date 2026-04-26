@@ -23,6 +23,103 @@
   totalCountEl.textContent = QUESTIONS.length;
   document.getElementById("start-btn").addEventListener("click", startQuiz);
   document.getElementById("restart-btn").addEventListener("click", startQuiz);
+  document.getElementById("resources-btn").addEventListener("click", openResources);
+  document.getElementById("questions-pill").addEventListener("click", openAllQuestions);
+
+  // Generic modal close handling (backdrop / × / Escape)
+  document.querySelectorAll(".modal").forEach(modal => {
+    modal.querySelectorAll("[data-close]").forEach(el => {
+      el.addEventListener("click", () => modal.classList.add("hidden"));
+    });
+  });
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape") {
+      document.querySelectorAll(".modal").forEach(m => m.classList.add("hidden"));
+    }
+  });
+
+  // ── Resources modal ────────────────────────────────────────────
+  const RESOURCES = [
+    {
+      name: "Fagerholt et al. — Routing and scheduling in tramp shipping",
+      sub: "Chapter · Research Handbook on Transport Modeling · 2025 · PDF",
+      kind: "PDF",
+      path: "resources/Fagerholt et al_Routing and scheduling in tramp shipping_Chapter in Research Handbook on Transport Modeling_2025.pdf",
+      preview: "pdf"
+    },
+    {
+      name: "Exam questions",
+      sub: "Markdown notes · resources/exam_questions.md",
+      kind: "MD",
+      path: "resources/exam_questions.md",
+      preview: "text"
+    }
+  ];
+
+  function openResources() {
+    const body = document.getElementById("resources-body");
+    body.innerHTML = "";
+    RESOURCES.forEach(r => {
+      const card = document.createElement("div");
+      card.className = "resource-card";
+      const encoded = r.path.split("/").map(encodeURIComponent).join("/");
+      card.innerHTML = `
+        <div class="resource-icon">${r.kind}</div>
+        <div class="resource-meta">
+          <div class="resource-name">${escHtml(r.name)}</div>
+          <div class="resource-sub">${escHtml(r.sub)}</div>
+          <div class="resource-actions">
+            <a class="resource-link" href="${encoded}" target="_blank" rel="noopener">Open ↗</a>
+            <button class="resource-link" type="button" data-toggle-preview>Preview</button>
+          </div>
+          <div class="resource-preview hidden" data-preview-slot></div>
+        </div>`;
+      const slot = card.querySelector("[data-preview-slot]");
+      const toggle = card.querySelector("[data-toggle-preview]");
+      toggle.addEventListener("click", () => {
+        if (!slot.classList.contains("hidden")) {
+          slot.classList.add("hidden");
+          slot.innerHTML = "";
+          toggle.textContent = "Preview";
+          return;
+        }
+        slot.classList.remove("hidden");
+        toggle.textContent = "Hide preview";
+        if (r.preview === "pdf") {
+          slot.innerHTML = `<iframe src="${encoded}#view=FitH" title="${escHtml(r.name)}"></iframe>`;
+        } else {
+          slot.innerHTML = `<pre>Loading…</pre>`;
+          fetch(encoded)
+            .then(res => res.ok ? res.text() : Promise.reject(res.status))
+            .then(txt => { slot.innerHTML = `<pre>${escHtml(txt)}</pre>`; })
+            .catch(() => { slot.innerHTML = `<pre>Could not load preview. Try Open ↗ instead.</pre>`; });
+        }
+      });
+      body.appendChild(card);
+    });
+    document.getElementById("resources-modal").classList.remove("hidden");
+  }
+
+  // ── All-questions overview modal ───────────────────────────────
+  function openAllQuestions() {
+    const body = document.getElementById("questions-body");
+    const letters = "ABCDEF";
+    body.innerHTML = QUESTIONS.map((q, i) => {
+      const correctLetter = letters[q.correct] || "?";
+      const correctText = q.opts[q.correct] || "";
+      return `
+        <div class="qa-item">
+          <div class="qa-head">
+            <span class="qa-num">Q${i + 1}</span>
+            <span class="qa-tag">${escHtml(q.tag)}</span>
+          </div>
+          <div class="qa-text">${escHtml(q.text)}</div>
+          <div class="qa-answer"><strong>Answer ${escHtml(correctLetter)}</strong>${escHtml(correctText)}</div>
+        </div>`;
+    }).join("");
+    document.getElementById("questions-modal").classList.remove("hidden");
+    typeset(body);
+  }
 
   function startQuiz() {
     deck = shuffle([...QUESTIONS]);
@@ -77,6 +174,7 @@
     nextBtn.onclick = () => { cur++; renderQuestion(); };
 
     answered = false;
+    typeset(quizSection);
   }
 
   // ── Handle answer selection ────────────────────────────────────
@@ -104,6 +202,7 @@
     const fb = document.getElementById("feedback");
     fb.className = "feedback " + (correct ? "correct" : "wrong");
     fb.textContent = (correct ? "✓  " : "✗  ") + (correct ? q.fb_correct : q.fb_wrong);
+    typeset(fb);
 
     document.getElementById("next-btn").classList.remove("hidden");
   }
@@ -140,6 +239,7 @@
         <span class="row-status">${h.correct ? "Correct" : "Incorrect"}</span>`;
       list.appendChild(li);
     });
+    typeset(resultsSection);
   }
 
   // ── Helpers ────────────────────────────────────────────────────
@@ -157,5 +257,11 @@
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;")
       .replace(/"/g, "&quot;");
+  }
+
+  function typeset(el) {
+    if (window.MathJax && MathJax.typesetPromise) {
+      MathJax.typesetPromise(el ? [el] : undefined).catch(() => {});
+    }
   }
 })();

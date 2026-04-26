@@ -48,13 +48,44 @@
       </p>
 
       <div class="stat-row">
-        <div class="stat-pill"><strong id="total-count">8</strong> questions</div>
+        <button type="button" class="stat-pill stat-pill-btn" id="questions-pill"><strong id="total-count">8</strong> questions</button>
         <div class="stat-pill">Randomised order</div>
         <div class="stat-pill">Instant feedback</div>
       </div>
 
-      <button class="btn-primary" id="start-btn">Start quiz →</button>
+      <div class="start-actions">
+        <button class="btn-primary" id="start-btn">Start quiz →</button>
+        <button class="btn-ghost" id="resources-btn" type="button">View resources</button>
+      </div>
     </section>
+
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <!--  RESOURCES MODAL                                           -->
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <div id="resources-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="resources-title">
+      <div class="modal-backdrop" data-close></div>
+      <div class="modal-panel">
+        <div class="modal-head">
+          <h2 id="resources-title" class="modal-title">Resources</h2>
+          <button type="button" class="modal-close" data-close aria-label="Close">×</button>
+        </div>
+        <div class="modal-body" id="resources-body"></div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <!--  ALL QUESTIONS MODAL                                       -->
+    <!-- ══════════════════════════════════════════════════════════ -->
+    <div id="questions-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="questions-title">
+      <div class="modal-backdrop" data-close></div>
+      <div class="modal-panel">
+        <div class="modal-head">
+          <h2 id="questions-title" class="modal-title">All questions &amp; answers</h2>
+          <button type="button" class="modal-close" data-close aria-label="Close">×</button>
+        </div>
+        <div class="modal-body" id="questions-body"></div>
+      </div>
+    </div>
 
     <!-- ══════════════════════════════════════════════════════════ -->
     <!--  QUIZ SCREEN                                               -->
@@ -100,6 +131,19 @@
   <footer>
     Operations Research · Maritime Routing &amp; Scheduling · NTNU
   </footer>
+
+  <!-- MathJax for LaTeX rendering -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)'], ['$', '$']],
+        displayMath: [['\\[', '\\]']]
+      },
+      svg: { fontCache: 'global' },
+      options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] }
+    };
+  </script>
+  <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
 
   <!-- questions.js must load before script.js -->
   <script src="questions.js"></script>

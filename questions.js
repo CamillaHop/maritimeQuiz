@@ -4,7 +4,9 @@
 //  Each question object:
 //  {
 //    tag:        string  — short label shown as a badge (e.g. "Conceptual")
-//    text:       string  — question body; use \n for line breaks
+//    text:       string  — question body; use \n for line breaks.
+//                          Math can be written as LaTeX with \( … \) for
+//                          inline and \[ … \] for display (rendered by MathJax).
 //    opts:       array   — 2–6 answer strings (A, B, C … auto-assigned)
 //    correct:    number  — zero-based index of the correct option
 //    fb_correct: string  — feedback shown on correct answer
@@ -28,7 +30,7 @@ const QUESTIONS = [
   },
   {
     tag: "Model formulation",
-    text: "In the path flow (set partitioning) model for BCSL, the constraint\n\n∑∑ Aᵢᵥᵣ xᵥᵣ = 1   ∀i ∈ Nᶜ\n\nensures that...",
+    text: "In the path flow (set partitioning) model for BCSL, the constraint\n\n\\[ \\sum_{v \\in V}\\sum_{r \\in R_v} A_{ivr}\\, x_{vr} = 1 \\quad \\forall\\, i \\in N^C \\]\n\nensures that...",
     opts: [
       "Each vessel is assigned exactly one route.",
       "Every mandatory contract cargo is served by exactly one vessel (or spot vessel).",
@@ -36,12 +38,12 @@ const QUESTIONS = [
       "The total number of routes selected equals the number of cargoes."
     ],
     correct: 1,
-    fb_correct: "Correct. The = 1 constraint for i ∈ Nᶜ (contracted cargoes) means every contract cargo must be covered — either by a fleet vessel or a spot vessel (relet). Compare with the ≤ 1 constraint used for optional spot cargoes.",
-    fb_wrong: "Look at the index set: i ∈ Nᶜ refers to contracted (mandatory) cargoes. The RHS = 1 means exactly one coverage is required. Each vessel being assigned one route is a separate constraint (∑ xᵥᵣ = 1  ∀v ∈ V). Optional cargo coverage uses ≤ 1, not = 1."
+    fb_correct: "Correct. The \\(=1\\) constraint for \\(i \\in N^C\\) (contracted cargoes) means every contract cargo must be covered — either by a fleet vessel or a spot vessel (relet). Compare with the \\(\\le 1\\) constraint used for optional spot cargoes.",
+    fb_wrong: "Look at the index set: \\(i \\in N^C\\) refers to contracted (mandatory) cargoes. The RHS \\(=1\\) means exactly one coverage is required. Each vessel being assigned one route is a separate constraint \\(\\sum_{r} x_{vr}=1\\;\\forall v\\in V\\). Optional cargo coverage uses \\(\\le 1\\), not \\(=1\\)."
   },
   {
     tag: "Model formulation",
-    text: "The constraint ∑ xᵥᵣ = 1  ∀v ∈ V in the path flow model means:",
+    text: "The constraint \\( \\sum_{r \\in R_v} x_{vr} = 1 \\quad \\forall\\, v \\in V \\) in the path flow model means:",
     opts: [
       "Each cargo is transported by at most one vessel.",
       "Each vessel must be assigned exactly one route from its set of feasible routes.",
@@ -49,20 +51,20 @@ const QUESTIONS = [
       "Optional cargoes can only be served once."
     ],
     correct: 1,
-    fb_correct: "Correct. This is the 'partitioning' part of set partitioning. Every vessel v must choose exactly one route r from its feasible route set Rᵥ — even if that route is an idle (do-nothing) route meaning the vessel is unused in the planning horizon.",
-    fb_wrong: "This constraint sums over r ∈ Rᵥ for each vessel v separately. It enforces that each vessel picks exactly one route. Cargo coverage is handled by the Aᵢᵥᵣ constraints, not this one."
+    fb_correct: "Correct. This is the 'partitioning' part of set partitioning. Every vessel \\(v\\) must choose exactly one route \\(r \\in R_v\\) — even if that route is an idle (do-nothing) route meaning the vessel is unused in the planning horizon.",
+    fb_wrong: "This constraint sums over \\(r \\in R_v\\) for each vessel \\(v\\) separately. It enforces that each vessel picks exactly one route. Cargo coverage is handled by the \\(A_{ivr}\\) constraints, not this one."
   },
   {
     tag: "Tramp vs industrial",
     text: "How would you modify the path flow model to convert it from tramp shipping to industrial shipping?",
     opts: [
-      "Change the objective from maximisation to minimisation, remove optional cargo constraints (≤ 1), and keep only mandatory cargo constraints (= 1).",
+      "Change the objective from maximisation to minimisation, remove optional cargo constraints (\\(\\le 1\\)), and keep only mandatory cargo constraints (\\(=1\\)).",
       "Add a constraint that limits each vessel to one cargo at a time.",
-      "Replace xᵥᵣ ∈ {0,1} with xᵥᵣ ∈ ℝ₊ to allow fractional routes.",
+      "Replace \\(x_{vr} \\in \\{0,1\\}\\) with \\(x_{vr} \\in \\mathbb{R}_+\\) to allow fractional routes.",
       "Add a new variable for spot market purchases and a penalty cost."
     ],
     correct: 0,
-    fb_correct: "Correct. In industrial shipping all cargoes are mandatory — there is no spot market. So: remove the ≤ 1 optional cargo constraints and the corresponding yᵢ variables; revenues are fixed so minimise total voyage cost instead of maximising profit.",
+    fb_correct: "Correct. In industrial shipping all cargoes are mandatory — there is no spot market. So: remove the \\(\\le 1\\) optional cargo constraints and the corresponding \\(y_i\\) variables; revenues are fixed so minimise total voyage cost instead of maximising profit.",
     fb_wrong: "In industrial shipping the cargo owner controls the fleet. All cargoes are mandatory, there are no optional spot cargoes. The structural change is: drop optional cargo constraints, treat total revenue as fixed, and switch the objective to cost minimisation."
   },
   {
@@ -80,42 +82,42 @@ const QUESTIONS = [
   },
   {
     tag: "Model analysis",
-    text: "A student claims: 'The path flow model can handle speed optimisation (choosing optimal speed on each sailing leg) directly as formulated, since the profit term Pᵥᵣ captures all costs.' Is this correct?",
+    text: "A student claims: 'The path flow model can handle speed optimisation (choosing optimal speed on each sailing leg) directly as formulated, since the profit term \\(P_{vr}\\) captures all costs.' Is this correct?",
     opts: [
-      "Yes — the profit term (Pᵥᵣ – Cᵥᵣ) already captures any speed choice within each route.",
+      "Yes — the profit term \\((P_{vr} - C_{vr})\\) already captures any speed choice within each route.",
       "No — speed optimisation requires adding a continuous speed variable per leg; in the set partitioning model, speed must be optimised locally when generating each route (the sub-problem), not as a variable inside the MIP.",
-      "Yes — the binary xᵥᵣ variables can encode different speeds by creating separate route copies for each speed level.",
+      "Yes — the binary \\(x_{vr}\\) variables can encode different speeds by creating separate route copies for each speed level.",
       "No — speed optimisation is impossible in a set partitioning framework and requires a completely different model class."
     ],
     correct: 1,
-    fb_correct: "Correct. The set partitioning model pre-computes Pᵥᵣ for each route. Speed can be optimised locally within each candidate route during route generation (a separate sub-problem), but is not a variable inside the MIP itself. Creating separate route copies for each speed (option C) is technically possible but leads to combinatorial explosion.",
-    fb_wrong: "In the path flow model, Pᵥᵣ is a fixed parameter per route. To handle speed optimisation, you optimise speed locally when generating each route a priori — the master MIP does not see speed as a variable. This is one of the structural advantages of the set partitioning approach: complex sub-decisions stay in the sub-problem."
+    fb_correct: "Correct. The set partitioning model pre-computes \\(P_{vr}\\) for each route. Speed can be optimised locally within each candidate route during route generation (a separate sub-problem), but is not a variable inside the MIP itself. Creating separate route copies for each speed (option C) is technically possible but leads to combinatorial explosion.",
+    fb_wrong: "In the path flow model, \\(P_{vr}\\) is a fixed parameter per route. To handle speed optimisation, you optimise speed locally when generating each route a priori — the master MIP does not see speed as a variable. This is one of the structural advantages of the set partitioning approach: complex sub-decisions stay in the sub-problem."
   },
   {
     tag: "Model analysis",
     text: "Regarding split loads (splitting a single cargo across more than one vessel): which statement about the path flow model is correct?",
     opts: [
-      "Split loads are already handled — xᵥᵣ can take fractional values representing partial coverage.",
-      "Split loads can be modelled by simply relaxing the mandatory cargo constraint from = 1 to ≤ 2.",
-      "Split loads require a fundamental reformulation because the binary Aᵢᵥᵣ parameter per route cannot capture partial coverage of a cargo by a single route.",
+      "Split loads are already handled — \\(x_{vr}\\) can take fractional values representing partial coverage.",
+      "Split loads can be modelled by simply relaxing the mandatory cargo constraint from \\(=1\\) to \\(\\le 2\\).",
+      "Split loads require a fundamental reformulation because the binary \\(A_{ivr}\\) parameter per route cannot capture partial coverage of a cargo by a single route.",
       "Split loads are irrelevant in maritime shipping since cargo volumes always match vessel capacity."
     ],
     correct: 2,
-    fb_correct: "Correct. The current Aᵢᵥᵣ structure means each route either covers cargo i entirely or not at all. Allowing splits means two routes (from two vessels) together transport the full volume — the constraint structure and Aᵢᵥᵣ would need to encode fractional coverage, which is a significant reformulation. This is why split-load TSRSPs use alternative model structures.",
-    fb_wrong: "Split loads are a meaningful and actively studied extension (e.g., Andersson et al. 2011, Korsvik et al. 2011). The current binary Aᵢᵥᵣ parameter cannot capture partial coverage of a cargo by a route — each route either carries cargo i fully or doesn't. Allowing splits requires restructuring the cargo coverage constraints."
+    fb_correct: "Correct. The current \\(A_{ivr}\\) structure means each route either covers cargo \\(i\\) entirely or not at all. Allowing splits means two routes (from two vessels) together transport the full volume — the constraint structure and \\(A_{ivr}\\) would need to encode fractional coverage, which is a significant reformulation. This is why split-load TSRSPs use alternative model structures.",
+    fb_wrong: "Split loads are a meaningful and actively studied extension (e.g., Andersson et al. 2011, Korsvik et al. 2011). The current binary \\(A_{ivr}\\) parameter cannot capture partial coverage of a cargo by a route — each route either carries cargo \\(i\\) fully or doesn't. Allowing splits requires restructuring the cargo coverage constraints."
   },
   {
     tag: "Exam level",
-    text: "BCSL wants to add flexible cargo quantities: each contract cargo i has quantity Lᵢ ∈ [Lᵢᵐⁱⁿ, Lᵢᵐᵃˣ] rather than a fixed value. How does this affect the set partitioning model structure?",
+    text: "BCSL wants to add flexible cargo quantities: each contract cargo \\(i\\) has quantity \\(L_i \\in [L_i^{\\min}, L_i^{\\max}]\\) rather than a fixed value. How does this affect the set partitioning model structure?",
     opts: [
-      "No change needed — the existing Pᵥᵣ parameter already absorbs flexible quantities automatically.",
-      "The cargo quantity becomes a continuous decision variable within each route; Pᵥᵣ becomes a function of the chosen quantity, optimised locally per route during route generation, leaving the master MIP structure unchanged.",
+      "No change needed — the existing \\(P_{vr}\\) parameter already absorbs flexible quantities automatically.",
+      "The cargo quantity becomes a continuous decision variable within each route; \\(P_{vr}\\) becomes a function of the chosen quantity, optimised locally per route during route generation, leaving the master MIP structure unchanged.",
       "A new binary variable must be added for each possible discrete quantity level across all routes.",
       "Flexible quantities make the problem infeasible because capacity constraints can no longer be guaranteed."
     ],
     correct: 1,
-    fb_correct: "Excellent. The key insight is that the quantity decision is local to each route and does not affect other routes' feasibility. So you optimise it within route generation (the sub-problem), with Pᵥᵣ reflecting the optimal profit over the quantity interval [Lᵢᵐⁱⁿ, Lᵢᵐᵃˣ]. The master MIP structure remains identical — this is one of the structural strengths of the set partitioning approach.",
-    fb_wrong: "The critical insight: quantity decisions within one route do not affect other routes. This means flexible quantities can be handled entirely in the route generation phase (sub-problem), with Pᵥᵣ reflecting the optimal profit over the quantity interval [Lᵢᵐⁱⁿ, Lᵢᵐᵃˣ]. The master set partitioning MIP structure stays the same."
+    fb_correct: "Excellent. The key insight is that the quantity decision is local to each route and does not affect other routes' feasibility. So you optimise it within route generation (the sub-problem), with \\(P_{vr}\\) reflecting the optimal profit over the quantity interval \\([L_i^{\\min}, L_i^{\\max}]\\). The master MIP structure remains identical — this is one of the structural strengths of the set partitioning approach.",
+    fb_wrong: "The critical insight: quantity decisions within one route do not affect other routes. This means flexible quantities can be handled entirely in the route generation phase (sub-problem), with \\(P_{vr}\\) reflecting the optimal profit over the quantity interval \\([L_i^{\\min}, L_i^{\\max}]\\). The master set partitioning MIP structure stays the same."
   },
   {
     tag: "Conceptual",
@@ -132,33 +134,33 @@ const QUESTIONS = [
   },
   {
     tag: "Vessel flow model",
-    text: "In the vessel flow TSRSP model, what is the role of the binary variable zᵢ for i ∈ Vᶜ?",
+    text: "In the vessel flow TSRSP model, what is the role of the binary variable \\(z_i\\) for \\(i \\in V^C\\)?",
     opts: [
-      "It indicates whether vessel i is used in the planning horizon.",
-      "It indicates whether contracted cargo i is reletted — i.e., serviced by a chartered spot vessel rather than an own-fleet vessel.",
-      "It indicates whether optional cargo i is transported.",
-      "It indicates whether cargo i is split between two vessels."
+      "It indicates whether vessel \\(i\\) is used in the planning horizon.",
+      "It indicates whether contracted cargo \\(i\\) is reletted — i.e., serviced by a chartered spot vessel rather than an own-fleet vessel.",
+      "It indicates whether optional cargo \\(i\\) is transported.",
+      "It indicates whether cargo \\(i\\) is split between two vessels."
     ],
     correct: 1,
-    fb_correct: "Correct. zᵢ = 1 means a contracted cargo is 'reletted' — chartered out to a spot vessel at cost Cᵢˢ — instead of being carried by an own-fleet vessel. The constraint ∑∑ xᵢⱼₖ + zᵢ = 1 for i ∈ Vᶜ enforces that every contract is covered exactly once.",
-    fb_wrong: "Look at constraint (1.2): ∑∑ xᵢⱼₖ + zᵢ = 1 for i ∈ Vᶜ. zᵢ acts as the 'spot-charter' alternative when the own fleet doesn't service a contract cargo — the firm pays Cᵢˢ to relet it. Optional cargoes use yᵢ instead."
+    fb_correct: "Correct. \\(z_i = 1\\) means a contracted cargo is 'reletted' — chartered out to a spot vessel at cost \\(C_i^S\\) — instead of being carried by an own-fleet vessel. The constraint \\( \\sum_{j}\\sum_{k} x_{ijk} + z_i = 1 \\) for \\(i \\in V^C\\) enforces that every contract is covered exactly once.",
+    fb_wrong: "Look at constraint (1.2): \\( \\sum_{j}\\sum_{k} x_{ijk} + z_i = 1 \\) for \\(i \\in V^C\\). \\(z_i\\) acts as the 'spot-charter' alternative when the own fleet doesn't service a contract cargo — the firm pays \\(C_i^S\\) to relet it. Optional cargoes use \\(y_i\\) instead."
   },
   {
     tag: "Vessel flow model",
-    text: "Constraint (1.4) ∑ⱼ x_{o(k),j,k} = 1 for k ∈ K states each vessel sails out of its origin exactly once. Why is this consistent with a vessel choosing not to be used in the planning horizon?",
+    text: "Constraint (1.4) \\( \\sum_{j} x_{o(k),j,k} = 1 \\) for \\(k \\in K\\) states each vessel sails out of its origin exactly once. Why is this consistent with a vessel choosing not to be used in the planning horizon?",
     opts: [
-      "Because the artificial destination node d(k) is included in Vₖ, so the vessel can sail directly from o(k) to d(k) — an 'idle' route — and still satisfy the constraint.",
-      "Because the constraint is actually ≤ 1, allowing the vessel to stay home.",
-      "Because vessels not used are removed from the set K before solving.",
+      "Because the artificial destination node \\(d(k)\\) is included in \\(V_k\\), so the vessel can sail directly from \\(o(k)\\) to \\(d(k)\\) — an 'idle' route — and still satisfy the constraint.",
+      "Because the constraint is actually \\(\\le 1\\), allowing the vessel to stay home.",
+      "Because vessels not used are removed from the set \\(K\\) before solving.",
       "Because constraint (1.6) cancels out (1.4) for unused vessels."
     ],
     correct: 0,
-    fb_correct: "Correct. Each vessel has an artificial destination node d(k), and the arc (o(k), d(k)) is in Aₖ. If the vessel does nothing, it 'sails' directly from origin to destination — formally satisfying (1.4) and (1.6) with zero profit and zero cost.",
-    fb_wrong: "The trick is the artificial destination node d(k). The arc o(k) → d(k) represents 'doing nothing', and it's a feasible choice that satisfies both (1.4) (one departure from origin) and (1.6) (one arrival at destination)."
+    fb_correct: "Correct. Each vessel has an artificial destination node \\(d(k)\\), and the arc \\((o(k), d(k))\\) is in \\(A_k\\). If the vessel does nothing, it 'sails' directly from origin to destination — formally satisfying (1.4) and (1.6) with zero profit and zero cost.",
+    fb_wrong: "The trick is the artificial destination node \\(d(k)\\). The arc \\(o(k) \\to d(k)\\) represents 'doing nothing', and it's a feasible choice that satisfies both (1.4) (one departure from origin) and (1.6) (one arrival at destination)."
   },
   {
     tag: "Bunker optimization",
-    text: "Why might bunker (fuel) optimisation be modelled as a separate decision rather than absorbed into the per-arc cost Cᵢⱼₖ?",
+    text: "Why might bunker (fuel) optimisation be modelled as a separate decision rather than absorbed into the per-arc cost \\(C_{ijk}\\)?",
     opts: [
       "Because bunker prices are identical at all ports, so a separate model is wasteful.",
       "Because bunker prices vary significantly between ports, so it may pay to detour to a cheap bunkering port and decide how much to load — decisions that interact with the routing.",
@@ -167,33 +169,33 @@ const QUESTIONS = [
     ],
     correct: 1,
     fb_correct: "Correct. Vilhelmsen et al. (2014) and others integrate bunkering: prices vary across ports, vessels have min/max bunker levels, and a detour to a cheap bunker port can lower total cost. With low/zero-emission fuels (hydrogen, methanol, ammonia) bunker infrastructure is sparser, making this even more important.",
-    fb_wrong: "The motivation is price variation across ports. If you absorb fuel into Cᵢⱼₖ you implicitly assume bunkering happens 'for free' at every visited port at a uniform price. Real operators choose where and how much to bunker, sometimes detouring."
+    fb_wrong: "The motivation is price variation across ports. If you absorb fuel into \\(C_{ijk}\\) you implicitly assume bunkering happens 'for free' at every visited port at a uniform price. Real operators choose where and how much to bunker, sometimes detouring."
   },
   {
     tag: "Speed optimization",
-    text: "In the speed optimisation extension, the fuel/sailing-cost function is typically modelled as C(s) = g·(p + s^q). What practical consequence does this convex (super-linear) shape have inside an Emission Control Area?",
+    text: "In the speed optimisation extension, the fuel/sailing-cost function is typically modelled as \\( C(s) = g\\,(p + s^q) \\). What practical consequence does this convex (super-linear) shape have inside an Emission Control Area?",
     opts: [
       "It is optimal to sail at maximum speed inside ECAs to spend less time there.",
       "It is optimal to slow down inside the ECA (where fuel is expensive) and speed up outside, and sometimes even to take a longer detour mostly outside the ECA.",
-      "Speed has no effect on cost since C is linear in s.",
+      "Speed has no effect on cost since \\(C\\) is linear in \\(s\\).",
       "It forces vessels to sail at a single fleet-wide constant speed."
     ],
     correct: 1,
-    fb_correct: "Correct. Because cost grows super-linearly in speed, halving speed inside an expensive-fuel zone saves more than the extra cost of speeding up outside. Fagerholt et al. (2015) showed this can even justify longer detours that mostly avoid the ECA — with the side-effect of higher CO₂.",
-    fb_wrong: "C(s) = g(p + s^q) is convex in s. Combined with more expensive fuel inside ECAs, optimality pushes speed down inside and up outside. Longer detours that mostly stay outside the ECA can also become cheaper — an unintended emissions side-effect documented by Fagerholt et al. (2015)."
+    fb_correct: "Correct. Because cost grows super-linearly in speed, halving speed inside an expensive-fuel zone saves more than the extra cost of speeding up outside. Fagerholt et al. (2015) showed this can even justify longer detours that mostly avoid the ECA — with the side-effect of higher \\(\\mathrm{CO}_2\\).",
+    fb_wrong: "\\( C(s) = g(p + s^q) \\) is convex in \\(s\\). Combined with more expensive fuel inside ECAs, optimality pushes speed down inside and up outside. Longer detours that mostly stay outside the ECA can also become cheaper — an unintended emissions side-effect documented by Fagerholt et al. (2015)."
   },
   {
     tag: "ECA",
-    text: "In the ECA routing extension, the binary variable x^E_{pijk} = 1 means:",
+    text: "In the ECA routing extension, the binary variable \\(x^{E}_{pijk} = 1\\) means:",
     opts: [
-      "Vessel k consumes the maximum allowed sulphur on arc (i,j).",
-      "Vessel k chooses path p ∈ Pᵢⱼ for sailing between nodes i and j.",
-      "Path p is entirely inside an ECA.",
-      "Vessel k pays an emission penalty on arc (i,j)."
+      "Vessel \\(k\\) consumes the maximum allowed sulphur on arc \\((i,j)\\).",
+      "Vessel \\(k\\) chooses path \\(p \\in P_{ij}\\) for sailing between nodes \\(i\\) and \\(j\\).",
+      "Path \\(p\\) is entirely inside an ECA.",
+      "Vessel \\(k\\) pays an emission penalty on arc \\((i,j)\\)."
     ],
     correct: 1,
-    fb_correct: "Correct. Pᵢⱼ is a discrete set of candidate sailing paths between i and j (each with its own in-ECA distance D^IN_{pij} and out-of-ECA distance D^OUT_{pij}). x^E_{pijk} picks one of these paths, and ∑_p x^E_{pijk} = xᵢⱼₖ links it to the routing variable.",
-    fb_wrong: "The ECA extension introduces a discrete set of alternative sailing paths Pᵢⱼ between each port pair. x^E_{pijk} is the path-choice indicator. Constraint (1.45) ties exactly one path to each chosen arc."
+    fb_correct: "Correct. \\(P_{ij}\\) is a discrete set of candidate sailing paths between \\(i\\) and \\(j\\) (each with its own in-ECA distance \\(D^{IN}_{pij}\\) and out-of-ECA distance \\(D^{OUT}_{pij}\\)). \\(x^{E}_{pijk}\\) picks one of these paths, and \\( \\sum_{p} x^{E}_{pijk} = x_{ijk} \\) links it to the routing variable.",
+    fb_wrong: "The ECA extension introduces a discrete set of alternative sailing paths \\(P_{ij}\\) between each port pair. \\(x^{E}_{pijk}\\) is the path-choice indicator. Constraint (1.45) ties exactly one path to each chosen arc."
   },
   {
     tag: "Modelling",
