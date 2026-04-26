@@ -1,10 +1,10 @@
 # Maritime Routing & Scheduling Quiz
 
-A small browser quiz for the NTNU course **TIØ4120 – Operations Research**, focused on tramp and industrial ship routing, the set partitioning (path flow) model, and extensions like ECA, speed optimisation, flexible cargo sizes and split loads.
+A small browser quiz for the NTNU course **TIØ4150 – Operations Research**, focused on tramp and industrial ship routing, the set partitioning (path flow) model, and extensions like ECA, speed optimisation, flexible cargo sizes and split loads.
 
 ## Run it
 
-Just open `index.html` in a browser. No build step, no dependencies.
+Just open `index.html` in a browser: no build step, no dependencies.
 
 ## Files
 
