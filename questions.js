@@ -248,5 +248,122 @@ const QUESTIONS = [
     correct: 1,
     fb_correct: "Correct. MIRPs (see Fagerholt et al. 2023 for a recent survey) couple ship routing with port-side inventory dynamics. Loading/discharge timing is determined by stock levels and rates rather than pre-specified time windows for individual cargoes.",
     fb_wrong: "MIRPs jointly plan vessel routes and port inventory. The cargo time windows of the basic TSRSP are replaced by inventory balance constraints driven by production and consumption rates plus storage limits at the ports."
+  },
+  {
+    tag: "Extension – unused ship",
+    text: "Extend the vessel-flow model (13.1)–(13.18) so that if ship \\(v\\) is not used in the planning horizon it gives a profit \\(F_v\\). The cleanest formulation is:",
+    opts: [
+      "Add a binary variable \\(u_v\\) where \\(u_v = 1\\) if ship \\(v\\) is unused, link it via \\(u_v + \\sum_{j \\in N} x_{o(v),j,v} = 1\\) (where the artificial direct arc \\(o(v) \\to d(v)\\) is excluded from the sum), and add \\(\\sum_{v \\in V} F_v\\, u_v\\) to the objective.",
+      "Multiply every cost coefficient by \\((1 - F_v)\\) for each vessel.",
+      "Replace the cargo-coverage constraints with \\(\\le 1\\) inequalities so vessels can be unused for free.",
+      "Add the constant \\(F_v\\) to the objective for every vessel regardless of whether it is used."
+    ],
+    correct: 0,
+    fb_correct: "Correct. You need an indicator that the vessel is idle. Either reuse the artificial \\(o(v) \\to d(v)\\) arc as the 'unused' signal (its \\(x\\) variable \\(=1\\) means idle), or introduce \\(u_v\\) explicitly and link it to the routing variables. The objective then gains \\(\\sum_v F_v\\, u_v\\) (a maximisation reward).",
+    fb_wrong: "You need an explicit indicator of 'vessel is idle in the planning horizon'. The natural construct is a binary \\(u_v\\) (or, equivalently, the existing artificial arc \\(o(v)\\to d(v)\\)). Then add \\(F_v u_v\\) to the objective. Multiplying costs or relaxing coverage constraints does not capture the conditional reward."
+  },
+  {
+    tag: "Extension – fixed assignment",
+    text: "How would you extend the model to enforce that a particular cargo \\(i\\) must be carried by a particular ship \\(v^\\ast\\)?",
+    opts: [
+      "Add the single equality \\( \\sum_{j \\in N_{v^\\ast}} x_{i,j,v^\\ast} = 1 \\), forcing vessel \\(v^\\ast\\) to visit cargo \\(i\\)'s pickup node, and remove cargo \\(i\\)'s pickup/delivery nodes from \\(N_v\\) for all \\(v \\neq v^\\ast\\).",
+      "Add a soft penalty for assigning cargo \\(i\\) to any vessel other than \\(v^\\ast\\), without any hard constraint.",
+      "Increase \\(C_{ijk}\\) on all arcs of vessels \\(v \\neq v^\\ast\\) to make those assignments unattractive.",
+      "Make cargo \\(i\\) optional and let the spot-relet variable \\(z_i\\) absorb the assignment."
+    ],
+    correct: 0,
+    fb_correct: "Correct. The clean way is to restrict the index sets: cargo \\(i\\)'s pickup/delivery nodes only appear in \\(N_{v^\\ast}\\). Equivalently, fix \\(x_{ijk} = 0\\) for all \\(k \\neq v^\\ast\\) on arcs leaving cargo \\(i\\)'s pickup, and add \\(\\sum_j x_{i,j,v^\\ast} = 1\\). Soft penalties or arc-cost tweaks do not guarantee the assignment.",
+    fb_wrong: "A hard fixed assignment must be a structural constraint, not a penalty. Either remove cargo \\(i\\)'s pickup/delivery nodes from every vessel's node set except \\(v^\\ast\\), or add the equality \\(\\sum_j x_{i,j,v^\\ast} = 1\\) and \\(x_{ijk}=0\\) for all \\(k\\neq v^\\ast\\) on cargo-\\(i\\) arcs. Soft penalties allow violations."
+  },
+  {
+    tag: "Extension – flexible time windows",
+    text: "The original time-window constraint is \\( \\underline{T}_{iv} \\le t_{iv} \\le \\overline{T}_{iv} \\). To allow start-of-service \\(t_{iv}\\) to lie in an extended window \\([\\underline{T}^P_{iv}, \\overline{T}^P_{iv}]\\) at a linear penalty \\(C^P\\) per time unit outside the original window, the cleanest reformulation is:",
+    opts: [
+      "Drop the original time-window constraint entirely and replace it with \\( \\underline{T}^P_{iv} \\le t_{iv} \\le \\overline{T}^P_{iv} \\), without any penalty term.",
+      "Introduce non-negative slack variables \\(\\alpha_{iv}, \\beta_{iv} \\ge 0\\) with \\(t_{iv} \\ge \\underline{T}_{iv} - \\alpha_{iv}\\), \\(t_{iv} \\le \\overline{T}_{iv} + \\beta_{iv}\\), and the extended bounds \\( \\underline{T}^P_{iv} \\le t_{iv} \\le \\overline{T}^P_{iv} \\); add \\(-\\sum_{i,v} C^P (\\alpha_{iv} + \\beta_{iv})\\) to the (maximisation) objective.",
+      "Multiply the cargo revenue \\(R_i\\) by the deviation \\((t_{iv} - \\underline{T}_{iv})\\).",
+      "Add a binary variable that is 1 if the time window is violated, and put a fixed penalty \\(C^P\\) (independent of magnitude) in the objective."
+    ],
+    correct: 1,
+    fb_correct: "Correct. The two non-negative slacks \\(\\alpha_{iv}\\) (early) and \\(\\beta_{iv}\\) (late) measure how far \\(t_{iv}\\) lies outside \\([\\underline{T}_{iv}, \\overline{T}_{iv}]\\). Hard bounds \\([\\underline{T}^P_{iv}, \\overline{T}^P_{iv}]\\) cap the extension, and the linear penalty \\(C^P(\\alpha_{iv} + \\beta_{iv})\\) is subtracted from profit. A fixed (binary) penalty would mis-model the per-time-unit linear cost.",
+    fb_wrong: "A linear penalty \\(C^P\\) per time unit needs a continuous slack measuring deviation, not a binary flag. The standard trick is two non-negative slacks \\(\\alpha_{iv}\\) (early-start) and \\(\\beta_{iv}\\) (late-start), bound \\(t_{iv}\\) within the extended window, and subtract \\(C^P(\\alpha_{iv}+\\beta_{iv})\\) from the objective."
+  },
+  {
+    tag: "Extension – flexible time windows",
+    text: "When extending the time windows with the penalty cost \\(C^P\\), why is it important that the extended bounds \\(\\underline{T}^P_{iv}\\) and \\(\\overline{T}^P_{iv}\\) are kept as hard limits rather than removed entirely?",
+    opts: [
+      "Because LP solvers cannot handle penalty terms without explicit bounds.",
+      "Because without an outer hard bound the LP could push \\(t_{iv}\\) arbitrarily far outside the original window — physically meaningless (e.g., a ship serving a cargo months early or late) and the model's parameters \\(\\underline{T}^P_{iv}, \\overline{T}^P_{iv}\\) precisely encode the maximum admissible flexibility.",
+      "Because \\(C^P\\) is only valid inside the extended interval and undefined outside.",
+      "Because removing the bounds would make the problem unbounded for any positive \\(C^P\\)."
+    ],
+    correct: 1,
+    fb_correct: "Correct. The penalty is a soft constraint rewarding the model for staying near the original window, but business reality (e.g., contractual hard limits, port closing times, spoilage) imposes an outer hard bound. \\(\\underline{T}^P_{iv}, \\overline{T}^P_{iv}\\) capture exactly this 'absolute latest/earliest acceptable' time.",
+    fb_wrong: "The extended bounds represent the absolute maximum admissible flexibility — beyond them service is simply infeasible (port closed, customer refuses, cargo spoilt). The linear penalty is well-defined everywhere, and the LP would not be unbounded for finite slacks; the issue is physical/contractual feasibility."
+  },
+  {
+    tag: "Full-load routing",
+    text: "Task 2 considers the full-load cargo routing problem where at most one cargo can be on board at any time. The simplest structural simplification this enables is:",
+    opts: [
+      "Each cargo can be represented by a single node (rather than separate pickup and delivery nodes), and the problem reduces to a VRPTW-style model on this collapsed graph.",
+      "All cargo-coverage constraints become redundant and can be dropped.",
+      "The vessel capacity constraints \\(\\sum L_i \\le K_v\\) become non-linear.",
+      "Time windows must be removed because they are inconsistent with full-load operation."
+    ],
+    correct: 0,
+    fb_correct: "Correct. With at most one cargo on board, a vessel's voyage is a sequence of independent (pickup, delivery) pairs that never overlap. Each cargo can be merged into a single node — the load-and-deliver leg — and the routing graph collapses to a VRPTW with one node per cargo. This is exactly the structural simplification the chapter highlights for full shipload TSRSPs.",
+    fb_wrong: "The key insight: pickup and delivery of a single cargo always happen back-to-back (no other cargo intervenes). So the (pickup, delivery) pair can be modelled as one combined node — and the model collapses from PDPTW to VRPTW form, with capacity automatically respected per single cargo."
+  },
+  {
+    tag: "Full-load routing",
+    text: "In the full-load setting, the vessel-capacity constraint \\(l_{ijk} \\le K_k\\, x_{ijk}\\) (load on board on arc \\((i,j)\\) by vessel \\(k\\)) can be exploited to:",
+    opts: [
+      "Add a Big-M penalty so that capacity violations are softly priced.",
+      "Eliminate the load-tracking variables \\(l_{ijk}\\) altogether — since at most one cargo is on board, load on a 'loaded' arc is fully determined by which cargo \\(i\\) was picked up, removing an entire family of variables and constraints.",
+      "Increase the model's LP relaxation tightness without removing any variables.",
+      "Convert the binary \\(x_{ijk}\\) into continuous variables."
+    ],
+    correct: 1,
+    fb_correct: "Correct. In the parcel (multi-cargo) version, \\(l_{ijk}\\) is needed to track partial loads because several cargoes can be on board simultaneously. With full loads, the load on any 'loaded' arc equals \\(L_i\\) for the single cargo \\(i\\) currently on board — a known parameter. The continuous \\(l_{ijk}\\) variables and their balance constraints disappear, yielding a smaller, tighter model.",
+    fb_wrong: "Full-load means only one cargo can be on board, so the on-board load is always either 0 (empty leg) or \\(L_i\\) (carrying cargo \\(i\\)) — a parameter, not a variable. This removes the entire \\(l_{ijk}\\) family and its balance constraints, giving a structurally smaller model than the PDPTW formulation."
+  },
+  {
+    tag: "MIRP – end conditions",
+    text: "Task 3 notes that the basic MIRP (13.40)–(13.59) tends to push end-of-horizon inventory levels to extreme values: maximum at loading ports and minimum at unloading ports. Why does this happen?",
+    opts: [
+      "Because the LP relaxation is degenerate at the boundary.",
+      "Because beyond the planning horizon nothing is rewarded or penalised, so the optimiser exploits free 'leftover' capacity — at loading ports it leaves stock unshipped (saving sailing cost), and at unloading ports it under-delivers (saving sailing cost while still meeting in-horizon demand).",
+      "Because production and consumption rates are unknown beyond the horizon.",
+      "Because the inventory variables are unbounded in the formulation."
+    ],
+    correct: 1,
+    fb_correct: "Correct. It is a classic finite-horizon edge effect: anything happening after \\(T\\) is invisible to the model, so the optimum hoards stock where it is free to hoard (loading ports — avoid shipping costs) and depletes stock where consumption is bounded below by demand (unloading ports — avoid extra deliveries). The result is operationally unrealistic for a rolling-horizon plan.",
+    fb_wrong: "Inventory variables are bounded by storage limits — that's not the issue. The optimiser simply has no incentive to leave the system in a 'good' state at the end of the horizon: shipping less means lower cost, and end-of-horizon stock has no value, so loading ports fill up and unloading ports drain."
+  },
+  {
+    tag: "MIRP – end conditions",
+    text: "Which reformulation prevents the extreme end-of-horizon inventory levels in the MIRP without distorting the in-horizon economics?",
+    opts: [
+      "Add bounds on the end inventory \\(s_{i,T}\\) at each port — e.g., require \\(\\underline{S}^{end}_i \\le s_{i,T} \\le \\overline{S}^{end}_i\\) (or, equivalently, force \\(s_{i,T}\\) close to a target such as the start inventory \\(s_{i,0}\\)).",
+      "Increase the planning horizon \\(T\\) to infinity.",
+      "Remove the inventory balance constraints in the last period.",
+      "Set the production and consumption rates to zero in the last period."
+    ],
+    correct: 0,
+    fb_correct: "Correct. The standard fix is explicit end-of-horizon inventory targets — either tight bounds \\([\\underline{S}^{end}_i, \\overline{S}^{end}_i]\\) per port, or a soft penalty term \\(\\sum_i C^{end}_i |s_{i,T} - s^{target}_i|\\), or the cyclic condition \\(s_{i,T} = s_{i,0}\\) for a rolling plan. This anchors the end state without changing in-horizon flow economics.",
+    fb_wrong: "The clean fix is to add explicit end-of-horizon constraints (or penalties) on \\(s_{i,T}\\) — a window of acceptable end inventories, a target equal to the start inventory, or a linear penalty for deviation. Removing balance constraints or zeroing rates would break the model; an infinite horizon is computationally infeasible."
+  },
+  {
+    tag: "MIRP – end conditions",
+    text: "A team proposes a 'cyclic' MIRP reformulation that enforces \\(s_{i,T} = s_{i,0}\\) at every port. Which interpretation is correct?",
+    opts: [
+      "It assumes the planning horizon repeats indefinitely with identical parameters, so the end state must equal the start state — appropriate for steady-state / rolling-horizon planning, but restrictive if production or consumption is non-stationary.",
+      "It guarantees the LP optimum equals the IP optimum.",
+      "It removes the need for inventory balance constraints in interior periods.",
+      "It eliminates all routing decisions because routing becomes trivial."
+    ],
+    correct: 0,
+    fb_correct: "Correct. The cyclic boundary condition \\(s_{i,T} = s_{i,0}\\) treats the horizon as one period of an infinite repetition — a common steady-state idealisation. It avoids end-of-horizon distortions but assumes parameters repeat. If production or demand is seasonal/non-stationary, a soft end-inventory penalty or a target window is preferable.",
+    fb_wrong: "The cyclic condition is a steady-state idealisation: the horizon repeats and the end state equals the start state. It is appropriate for stationary, repeating operations, less so for non-stationary settings — there a soft penalty or target window on \\(s_{i,T}\\) is more flexible."
   }
 ];
