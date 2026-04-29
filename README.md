@@ -3,8 +3,8 @@
 A small browser quiz for the NTNU course **TIØ4150 – Operations Research**, focused on tramp and industrial ship routing, the set partitioning (path flow) model, and extensions like ECA, speed optimisation, flexible cargo sizes and split loads.
 
 ## Run it
-
-Just open `index.html` in a browser: no build step, no dependencies.
+1. Download the repository, or clone it with Git. 
+2. Open `index.html` in a browser: no build step, no dependencies.
 
 ## Files
 
@@ -12,7 +12,7 @@ Just open `index.html` in a browser: no build step, no dependencies.
 - `style.css` – styling, light/dark theme
 - `questions.js` – question bank
 - `script.js` – quiz logic
-- `resources/` – images and supporting material
+- `resources/` –  supporting material, e.g papers and the relevant exercises from exams and previous work requirements
 
 ## Adding questions
 
